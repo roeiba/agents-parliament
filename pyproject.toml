@@ -1,0 +1,17 @@
+[project]
+name = "cooperating-agents"
+version = "0.3.0"
+description = "MCP servers that allow AI agents to interact with various AI coding assistants"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "claude-agent-sdk>=0.1.0",
+]
+
+[project.scripts]
+claude-mcp = "claude_mcp_server:main"
+aider-mcp = "aider_mcp_server:main"
+codex-mcp = "codex_mcp_server:main"
+gemini-mcp = "gemini_mcp_server:main"
+goose-mcp = "goose_mcp_server:main"
+
