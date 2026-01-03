@@ -1,3 +1,5 @@
+Target: #GenerativeAI (https://x.com/search?q=%23GenerativeAI)
+
 The best workflow for AI Art just got automated. 🎨
 
 Usually:

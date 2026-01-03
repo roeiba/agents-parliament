@@ -1,3 +1,5 @@
+Target: #BuildInPublic (https://x.com/search?q=%23BuildInPublic)
+
 Built this over New Year's Eve 🎆
 
 I was tired of switching tabs between Claude, Gemini, and ChatGPT to get the best results.
