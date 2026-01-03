@@ -1,8 +1,19 @@
-# Cooperating Agents - MCP Servers
+# Agents Parliament
 
-A collection of MCP (Model Context Protocol) servers that allow AI agents to interact with various AI coding assistants.
+![Agents Parliament](agents_parliament.png)
 
-## Available MCP Servers
+
+The idea: instead of asking one AI coding agent (Claude, Gemini, Codex, Aider, etc.), you group them into your **"Agents Parliament."**
+
+When you submit a task:
+
+1. **Your main agent receives the request** and decides if it needs help
+2. **It calls other agents as tools** — Claude might ask Gemini for a code review, or delegate a refactor to Aider
+3. **The agents collaborate** — each bringing their strengths to produce better results
+
+Each agent can also spawn sub-agents on the fly, dynamically creating their instructions based on the task.
+
+## Supported Agents
 
 | Server | CLI Tool | Publisher |
 |--------|----------|-----------|
