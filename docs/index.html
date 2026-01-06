@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents Parliament - AI Agent Orchestration</title>
+    <meta name="description" content="Orchestrate multiple AI coding agents like Claude, Gemini, and Aider to work together on your projects.">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>Assemble Your<br>Agents Parliament</h1>
+                    <p>Stop relying on a single AI. Orchestrate a team of specialized agents—Claude, Gemini, Aider, and more—working together to build better software, faster.</p>
+                    <div class="cta-group">
+                        <a href="https://github.com/roeiba/agents-parliament" class="btn btn-primary">View on GitHub</a>
+                        <a href="#how-it-works" class="btn btn-secondary">How it Works</a>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <img src="../agents_parliament.png" alt="Agents Parliament Diagram">
+                </div>
+            </div>
+        </header>
+
+        <section id="how-it-works" class="section">
+            <div class="section-title">
+                <h2>How It Works</h2>
+                <p>One main agent to rule them all, multiple specialists to do the heavy lifting.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">👑</div>
+                    <h3>The Prime Minister</h3>
+                    <p>Your main agent (e.g., Claude) receives your task and decides which specialist is best suited to help.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤝</div>
+                    <h3>Delegation</h3>
+                    <p>The main agent calls other agents as tools (MCP). Claude might ask Gemini for a review or Aider to refactor.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Collaboration</h3>
+                    <p>Agents switch contexts, spawn sub-agents, and combine their unique strengths to solve complex problems.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="agents" class="section">
+            <div class="section-title">
+                <h2>Meet the Parliament</h2>
+                <p>Supported agents you can add to your team today.</p>
+            </div>
+            <div class="agents-grid">
+                <div class="agent-card agent-claude">
+                    <div class="agent-header">
+                        <div class="agent-logo">Cl</div>
+                        <h3>Claude Code</h3>
+                    </div>
+                    <div class="agent-content">
+                        <p class="agent-role">Publisher: Anthropic</p>
+                        <p>High reasoning capability, excellent for planning and orchestration.</p>
+                        <br>
+                        <code>claude-mcp</code>
+                    </div>
+                </div>
+
+                <div class="agent-card agent-gemini">
+                    <div class="agent-header">
+                        <div class="agent-logo">Ge</div>
+                        <h3>Gemini CLI</h3>
+                    </div>
+                    <div class="agent-content">
+                        <p class="agent-role">Publisher: Google</p>
+                        <p>Large context window, great for deep code analysis and multimodal tasks.</p>
+                        <br>
+                        <code>gemini-mcp</code>
+                    </div>
+                </div>
+
+                <div class="agent-card agent-aider">
+                    <div class="agent-header">
+                        <div class="agent-logo">Ai</div>
+                        <h3>Aider</h3>
+                    </div>
+                    <div class="agent-content">
+                        <p class="agent-role">Publisher: Open Source</p>
+                        <p>Specialized in editing local files and git operations. The perfect coder.</p>
+                        <br>
+                        <code>aider-mcp</code>
+                    </div>
+                </div>
+
+                <div class="agent-card agent-openai">
+                    <div class="agent-header">
+                        <div class="agent-logo">Ox</div>
+                        <h3>OpenAI Codex</h3>
+                    </div>
+                    <div class="agent-content">
+                        <p class="agent-role">Publisher: OpenAI</p>
+                        <p>Strong code generation and translation capabilities.</p>
+                        <br>
+                        <code>codex-mcp</code>
+                    </div>
+                </div>
+
+                <div class="agent-card agent-goose">
+                    <div class="agent-header">
+                        <div class="agent-logo">Go</div>
+                        <h3>Goose</h3>
+                    </div>
+                    <div class="agent-content">
+                        <p class="agent-role">Publisher: Block</p>
+                        <p>An open source developer agent for automating tasks.</p>
+                        <br>
+                        <code>goose-mcp</code>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+             <div class="section-title">
+                <h2>Installation</h2>
+            </div>
+            <div style="background: #161b22; padding: 2rem; border-radius: 12px; font-family: monospace; max-width: 600px; margin: 0 auto; border: 1px solid #30363d;">
+                <p style="color: #8b949e; margin-bottom: 1rem;"># Install easily with pip</p>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: #c9d1d9;">pip install "mcp[cli]"</span>
+                    <button onclick="navigator.clipboard.writeText('pip install \'mcp[cli]\''); this.textContent = 'Copied!'; setTimeout(() => this.textContent = 'Copy', 2000);" style="background: #238636; border: none; padding: 4px 12px; border-radius: 4px; color: white; cursor: pointer;">Copy</button>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2026 Agents Parliament. Built with <span style="color: #f78166;">♥</span> by Agentic AI.</p>
+            </div>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -42,4 +42,7 @@ Thumbs.db
 
 # Local config backups created by installer
 *.backup_*.json
+# Secrets
+.env
+.env.prod
 mcp.json

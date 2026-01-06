@@ -50,28 +50,36 @@ curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.
 ## Installation
 
 ```bash
-pip install "mcp[cli]"
+# Install from PyPI (recommended)
+pip install agenters
+
+# OR install from source
+git clone https://github.com/roeiba/agenters.git
+cd agenters
+pip install .
 ```
 
 ## Usage
 
 ### Run servers directly
 
+Once installed, you can use the CLI commands directly:
+
 ```bash
 # Claude MCP Server
-python src/claude_mcp_server.py
+claude-mcp
 
 # Aider MCP Server
-python src/aider_mcp_server.py
+aider-mcp
 
 # Codex MCP Server
-python src/codex_mcp_server.py
+codex-mcp
 
 # Gemini MCP Server
-python src/gemini_mcp_server.py
+gemini-mcp
 
 # Goose MCP Server
-python src/goose_mcp_server.py
+goose-mcp
 ```
 
 ### Configure with Claude Desktop
@@ -82,24 +90,24 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 {
   "mcpServers": {
     "claude-agent": {
-      "command": "python",
-      "args": ["/path/to/src/claude_mcp_server.py"]
+      "command": "claude-mcp",
+      "args": []
     },
     "aider-agent": {
-      "command": "python",
-      "args": ["/path/to/src/aider_mcp_server.py"]
+      "command": "aider-mcp",
+      "args": []
     },
     "codex-agent": {
-      "command": "python",
-      "args": ["/path/to/src/codex_mcp_server.py"]
+      "command": "codex-mcp",
+      "args": []
     },
     "gemini-agent": {
-      "command": "python",
-      "args": ["/path/to/src/gemini_mcp_server.py"]
+      "command": "gemini-mcp",
+      "args": []
     },
     "goose-agent": {
-      "command": "python",
-      "args": ["/path/to/src/goose_mcp_server.py"]
+      "command": "goose-mcp",
+      "args": []
     }
   }
 }

@@ -1,17 +1,39 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "cooperating-agents"
+name = "agenters"
 version = "0.3.0"
 description = "MCP servers that allow AI agents to interact with various AI coding assistants"
+readme = "README.md"
 requires-python = ">=3.10"
+authors = [
+    { name = "Roei Bar", email = "roei@example.com" }
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
 dependencies = [
     "mcp[cli]>=1.2.0",
     "claude-agent-sdk>=0.1.0",
 ]
 
+[project.urls]
+"Homepage" = "https://github.com/roeiba/agenters"
+"Bug Tracker" = "https://github.com/roeiba/agenters/issues"
+
 [project.scripts]
-claude-mcp = "claude_mcp_server:main"
-aider-mcp = "aider_mcp_server:main"
-codex-mcp = "codex_mcp_server:main"
-gemini-mcp = "gemini_mcp_server:main"
-goose-mcp = "goose_mcp_server:main"
+claude-mcp = "agenters.claude_mcp_server:main"
+aider-mcp = "agenters.aider_mcp_server:main"
+codex-mcp = "agenters.codex_mcp_server:main"
+gemini-mcp = "agenters.gemini_mcp_server:main"
+goose-mcp = "agenters.goose_mcp_server:main"
+manus-mcp = "agenters.manus_mcp_server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
 
