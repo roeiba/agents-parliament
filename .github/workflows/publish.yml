@@ -13,7 +13,8 @@ jobs:
       name: pypi
       url: https://pypi.org/p/agenters
     permissions:
-      id-token: write  # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write  # IMPORTANT: mandatory for PyPI Trusted Publishing
+      contents: read
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,7 +30,7 @@ jobs:
       - name: Build package
         run: python -m build
 
+      # Uses PyPI Trusted Publishing - no API token needed!
+      # Setup required: https://docs.pypi.org/trusted-publishers/creating-a-project-through-oidc/
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          password: ${{ secrets.PYPI_API_TOKEN }}
