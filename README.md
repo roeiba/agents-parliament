@@ -2,6 +2,7 @@
 
 ![Agents Parliament](agents_parliament.png)
 
+[![PyPI version](https://badge.fury.io/py/agenters.svg)](https://badge.fury.io/py/agenters)
 
 The idea: instead of asking one AI coding agent (Claude, Gemini, Codex, Aider, etc.), you group them into your **"Agents Parliament."**
 
