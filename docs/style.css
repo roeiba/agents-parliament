@@ -26,7 +26,9 @@ body {
 }
 
 /* Typography */
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     color: #ffffff;
     font-weight: 700;
 }
@@ -87,7 +89,7 @@ header {
     align-items: center;
     position: relative;
     background: radial-gradient(circle at top right, rgba(88, 166, 255, 0.15), transparent 40%),
-                radial-gradient(circle at bottom left, rgba(35, 134, 54, 0.15), transparent 40%);
+        radial-gradient(circle at bottom left, rgba(35, 134, 54, 0.15), transparent 40%);
 }
 
 .hero-content {
@@ -107,6 +109,7 @@ header {
     margin-bottom: 1.5rem;
     background: linear-gradient(135deg, #ffffff 0%, #8b949e 100%);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -127,7 +130,7 @@ header {
 .hero-image img {
     max-width: 100%;
     border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
     transform: rotateY(-5deg) rotateX(5deg);
     transition: transform 0.5s ease;
 }
@@ -198,12 +201,12 @@ header {
 
 .agent-card:hover {
     transform: scale(1.02);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 .agent-header {
     padding: 1.5rem;
-    background: linear-gradient(to right, rgba(255,255,255,0.05), transparent);
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.05), transparent);
     border-bottom: 1px solid var(--border-color);
     display: flex;
     align-items: center;
@@ -222,11 +225,36 @@ header {
 }
 
 /* Colors for agents */
-.agent-claude .agent-logo { background: #d97757; color: white; }
-.agent-gemini .agent-logo { background: #4285f4; color: white; }
-.agent-openai .agent-logo { background: #10a37f; color: white; }
-.agent-aider .agent-logo { background: #2ba056; color: white; }
-.agent-goose .agent-logo { background: #000000; color: white; border: 1px solid #333; }
+.agent-claude .agent-logo {
+    background: #d97757;
+    color: white;
+}
+
+.agent-gemini .agent-logo {
+    background: #4285f4;
+    color: white;
+}
+
+.agent-openai .agent-logo {
+    background: #10a37f;
+    color: white;
+}
+
+.agent-aider .agent-logo {
+    background: #2ba056;
+    color: white;
+}
+
+.agent-goose .agent-logo {
+    background: #000000;
+    color: white;
+    border: 1px solid #333;
+}
+
+.agent-manus .agent-logo {
+    background: #ff6b6b;
+    color: white;
+}
 
 .agent-content {
     padding: 1.5rem;
@@ -261,19 +289,19 @@ footer {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .hero-text h1 {
         font-size: 2.5rem;
     }
-    
+
     .hero-image {
         margin-top: 2rem;
     }
-    
+
     .hero-image img {
         transform: none;
     }
-    
+
     .hero-image:hover img {
         transform: none;
     }
