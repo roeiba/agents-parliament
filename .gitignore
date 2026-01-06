@@ -45,4 +45,5 @@ Thumbs.db
 # Secrets
 .env
 .env.prod
+env-secrets
 mcp.json
