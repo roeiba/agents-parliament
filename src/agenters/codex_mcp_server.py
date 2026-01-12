@@ -32,17 +32,33 @@ mcp = FastMCP("codex-agent")
 # Agent Card for A2A Protocol capability discovery
 AGENT_CARD = {
     "name": "codex-agent",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "OpenAI",
-    "description": "OpenAI Codex CLI - Powered by GPT models for code generation and editing",
-    "strengths": [
-        "code-generation",
-        "sandboxed-execution",
+    "description": "Best for small, focused code edits and quick one-shot tasks. Optimized for pinpointed changes rather than large refactors.",
+    "best_for": [
+        "small-code-edits",
+        "quick-bug-fixes",
+        "one-shot-tasks",
         "natural-language-to-code",
-        "multimodal-support",
-        "auto-editing"
+        "sandboxed-execution",
+        "simple-refactors",
+        "adding-single-function"
+    ],
+    "not_for": [
+        "complex-algorithms (use claude)",
+        "large-refactoring (use aider)",
+        "image-generation (use gemini)",
+        "web-browsing (use gemini)",
+        "multi-step-workflows (use goose)"
+    ],
+    "strengths": [
+        "quick-focused-edits",
+        "sandboxed-execution",
+        "natural-language-parsing",
+        "fast-turnaround"
     ],
     "context_window": "varies by model",
+    "priority": 4,  # Use for simple tasks, defer complex to others
     "tools": [
         "codex_prompt",
         "codex_full_auto",
@@ -56,6 +72,7 @@ AGENT_CARD = {
         "mcp_extensions": True
     }
 }
+
 
 
 async def run_codex_command(
@@ -125,6 +142,9 @@ async def codex_prompt(
 ) -> str:
     """
     Send a prompt to the OpenAI Codex CLI.
+
+    BEST FOR: Small, focused code edits, quick bug fixes, one-shot tasks, simple refactors.
+    NOT FOR: Complex algorithms (use claude), large refactoring (use aider), images (use gemini).
 
     Runs in suggest mode (default) where Codex proposes changes
     but requires approval.

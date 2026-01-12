@@ -32,17 +32,34 @@ mcp = FastMCP("goose-agent")
 # Agent Card for A2A Protocol capability discovery
 AGENT_CARD = {
     "name": "goose-agent",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "Block (Square)",
-    "description": "Goose - Autonomous AI agent for multi-step workflow automation",
+    "description": "Best for autonomous multi-step workflows and CI/CD pipelines. Excels at chaining together complex task sequences without intervention.",
+    "best_for": [
+        "autonomous-workflows",
+        "multi-step-pipelines",
+        "ci-cd-integration",
+        "build-test-deploy",
+        "recipe-automation",
+        "toolkit-integrations",
+        "devops-tasks"
+    ],
+    "not_for": [
+        "image-generation (use gemini)",
+        "web-browsing (use gemini)",
+        "complex-algorithms (use claude)",
+        "simple-edits (use codex)",
+        "git-focused-changes (use aider)"
+    ],
     "strengths": [
         "autonomous-operation",
         "multi-step-workflows",
-        "local-execution",
-        "recipe-based-automation",
-        "toolkit-extensibility"
+        "recipe-automation",
+        "toolkit-extensibility",
+        "error-recovery"
     ],
     "context_window": "varies",
+    "priority": 5,  # Use for workflow automation, not single edits
     "tools": [
         "goose_run",
         "goose_run_file",
@@ -58,6 +75,7 @@ AGENT_CARD = {
         "mcp_extensions": True
     }
 }
+
 
 
 async def run_goose_command(
@@ -127,6 +145,9 @@ async def goose_run(
 ) -> str:
     """
     Run Goose with text instructions.
+
+    BEST FOR: Autonomous multi-step workflows, CI/CD pipelines, build-test-deploy, recipe automation.
+    NOT FOR: Images (use gemini), complex algorithms (use claude), simple edits (use codex), git changes (use aider).
 
     Goose is an autonomous AI agent that can plan and execute
     multi-step workflows.

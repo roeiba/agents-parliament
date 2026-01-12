@@ -41,18 +41,33 @@ DEFAULT_MODEL = "sonnet"
 # Agent Card for A2A Protocol capability discovery
 AGENT_CARD = {
     "name": "claude-agent",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "Anthropic",
-    "description": "Claude Code via claude-agent-sdk - Expert at reasoning, coding, and structured output",
+    "description": "Best for complex coding, deep reasoning, and multi-step planning. The most capable agent for challenging algorithmic work and architectural decisions.",
+    "best_for": [
+        "complex-algorithms",
+        "architectural-design",
+        "debugging-hard-bugs",
+        "code-review",
+        "multi-step-reasoning",
+        "structured-json-output",
+        "technical-documentation"
+    ],
+    "not_for": [
+        "image-generation (use gemini)",
+        "web-browsing (use gemini)",
+        "simple-one-off-edits (use codex)",
+        "git-integrated-changes (use aider)"
+    ],
     "strengths": [
         "deep-reasoning",
-        "coding",
+        "complex-coding",
         "long-context",
         "structured-output",
-        "file-operations",
         "multi-step-planning"
     ],
     "context_window": "200K+",
+    "priority": 1,  # Highest priority for complex tasks
     "tools": [
         "ask_claude",
         "ask_claude_with_system",
@@ -72,6 +87,7 @@ AGENT_CARD = {
         "mcp_servers": True
     }
 }
+
 
 
 async def query_claude(
@@ -147,6 +163,9 @@ async def ask_claude(
 ) -> str:
     """
     Ask Claude a question and get a response.
+
+    BEST FOR: Complex coding, deep reasoning, architectural design, debugging hard bugs.
+    NOT FOR: Image generation (use gemini), simple edits (use codex), git changes (use aider).
 
     Args:
         prompt: The question or prompt to send to Claude

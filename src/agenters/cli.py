@@ -187,7 +187,15 @@ def save_config(config_path: Path, config: dict):
 
 
 def get_mcp_server_config(agent: str) -> dict:
-    """Get the MCP server configuration for an agent."""
+    """Get the MCP server configuration for an agent.
+    
+    Returns a professional MCP server config with:
+    - command: The CLI command to run the MCP server
+    - args: Command-line arguments (empty by default)
+    - env: Environment variables (empty by default, user can add API keys etc.)
+    - disabled: Whether the server is disabled (false by default)
+    - transport: The transport mechanism (stdio for local process communication)
+    """
     # Use the installed CLI commands from pyproject.toml entry points
     mcp_commands = {
         "claude": "claude-mcp",
@@ -199,7 +207,10 @@ def get_mcp_server_config(agent: str) -> dict:
     }
     return {
         "command": mcp_commands.get(agent, f"{agent}-mcp"),
-        "args": []
+        "args": [],
+        "env": {},
+        "disabled": False,
+        "transport": "stdio"
     }
 
 

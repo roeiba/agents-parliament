@@ -3,10 +3,23 @@
 **Publisher:** Google (Open Source)
 
 ## Overview
-Gemini CLI is an open-source tool that brings Google's Gemini models (e.g., Gemini 1.5/2.5 Pro) to the terminal. It works as a "Reason and Act" (ReAct) agent capable of complex multi-step tasks.
+Gemini CLI is an open-source tool that brings Google's Gemini models to the terminal. It excels at tasks requiring massive context, real-time web information, image understanding/generation, and web development.
+
+## Primary Use Cases (When to Delegate to Gemini)
+- **Image Generation**: Best agent for creating images and visual assets
+- **Web Browsing & Research**: Real-time Google Search grounding for up-to-date information
+- **Web Development**: Strong at HTML/CSS/JS, frontend frameworks, and full-stack web apps
+- **Large Codebase Analysis**: 1M+ token context window enables understanding entire repositories
+- **Multimodal Tasks**: Can analyze images, PDFs, and generate visual content
+
+## When NOT to Use Gemini
+- Complex algorithmic coding (prefer Claude)
+- Git-integrated code changes (prefer Aider)
+- Small, focused code edits (prefer Codex)
 
 ## Key Features
-- **Large Context Window:** Leverages Gemini's massive context window (up to 1M+ tokens) to understand large codebases.
-- **Agentic Capabilities:** Can perform Google Searches, read files, and execute shell commands to solve problems autonomously.
-- **Model Context Protocol (MCP):** Supports extensibility through MCP, allowing it to connect to other tools and data sources.
-- **Free Tier:** Generous free usage limits for individual developers using their own API keys.
+- **Massive Context Window:** Up to 1M+ tokens - can ingest entire codebases
+- **Search Grounding:** Real-time Google Search for current information
+- **Image Generation:** Native image creation capabilities via Imagen
+- **Model Context Protocol (MCP):** Full extensibility through MCP servers
+- **Playbooks:** Pre-configured guides for specialized workflows

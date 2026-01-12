@@ -3,9 +3,15 @@ Manus CLI MCP Server
 
 An MCP server that allows other AI agents to interact with the
 Manus CLI.
+
+Enhanced with:
+- A2A capability discovery via agent cards
+- Directory-scoped file operations
+- Search capabilities
 """
 
 import asyncio
+import json
 import logging
 import sys
 from typing import Optional
@@ -22,6 +28,54 @@ logger = logging.getLogger("manus-mcp")
 
 # Initialize FastMCP server
 mcp = FastMCP("manus-agent")
+
+# Agent Card for A2A Protocol capability discovery
+AGENT_CARD = {
+    "name": "manus-agent",
+    "version": "2.2.0",
+    "publisher": "Manus",
+    "description": "Best for research, competitor analysis, multi-page data collection, and building small applications. Excels at reading and synthesizing information from multiple web sources.",
+    "best_for": [
+        "research",
+        "competitor-analysis",
+        "multi-page-data-collection",
+        "web-reading",
+        "small-app-building",
+        "market-research",
+        "information-synthesis"
+    ],
+    "not_for": [
+        "image-generation (use gemini)",
+        "complex-algorithms (use claude)",
+        "git-integrated-changes (use aider)",
+        "single-file-edits (use codex)",
+        "ci-cd-pipelines (use goose)"
+    ],
+    "strengths": [
+        "research",
+        "data-collection",
+        "web-reading",
+        "small-apps",
+        "synthesis"
+    ],
+    "context_window": "varies",
+    "priority": 3,  # High priority for research and data collection tasks
+    "tools": [
+        "manus_prompt",
+        "manus_in_directory",
+        "manus_with_search",
+        "get_manus_capabilities",
+        "get_manus_version"
+    ],
+    "supported_features": {
+        "search": True,
+        "file_operations": True,
+        "web_reading": True,
+        "app_building": True
+    }
+}
+
+
 
 
 async def run_manus_command(
@@ -91,6 +145,9 @@ async def manus_prompt(
 ) -> str:
     """
     Send a prompt to the Manus CLI.
+
+    BEST FOR: Research, competitor analysis, multi-page data collection, building small apps.
+    NOT FOR: Images (use gemini), complex algorithms (use claude), git changes (use aider).
 
     Args:
         prompt: The question or instruction for Manus
@@ -176,12 +233,29 @@ async def get_manus_version() -> str:
     return await run_manus_command(["--version"])
 
 
+@mcp.tool()
+async def get_manus_capabilities() -> str:
+    """
+    Get Manus's agent card for A2A protocol capability discovery.
+
+    This returns a JSON agent card describing Manus's capabilities,
+    strengths, available tools, and supported features. Useful for
+    other agents to discover what Manus can do.
+
+    Returns:
+        JSON string containing the agent capability card
+    """
+    logger.info("get_manus_capabilities called")
+    return json.dumps(AGENT_CARD, indent=2)
+
+
 def main():
     """Run the MCP server with STDIO transport."""
     logger.info("=" * 60)
-    logger.info("Starting Manus MCP Server")
+    logger.info("Starting Manus MCP Server v2.0 (A2A Enhanced)")
     logger.info("=" * 60)
-    logger.info("Tools: manus_prompt, manus_in_directory, manus_with_search, get_manus_version")
+    logger.info("Core tools: manus_prompt, manus_in_directory, manus_with_search")
+    logger.info("Discovery: get_manus_capabilities, get_manus_version")
     mcp.run(transport="stdio")
 
 

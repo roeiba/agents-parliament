@@ -33,17 +33,34 @@ mcp = FastMCP("gemini-agent")
 # Agent Card for A2A Protocol capability discovery
 AGENT_CARD = {
     "name": "gemini-agent",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "Google",
-    "description": "Google Gemini CLI - Expert at large-context analysis and real-time web search",
+    "description": "Best for image generation, web browsing/research, and web development. Has the largest context window (1M+) for massive codebase analysis.",
+    "best_for": [
+        "image-generation",
+        "web-browsing",
+        "web-research",
+        "real-time-information",
+        "web-development",
+        "frontend-development",
+        "large-codebase-analysis",
+        "multimodal-tasks"
+    ],
+    "not_for": [
+        "complex-algorithms (use claude)",
+        "git-integrated-changes (use aider)",
+        "small-focused-edits (use codex)",
+        "autonomous-workflows (use goose)"
+    ],
     "strengths": [
-        "large-context",
+        "image-generation",
         "search-grounding",
-        "real-time-data",
-        "multimodal",
-        "file-analysis"
+        "massive-context-1M+",
+        "web-development",
+        "multimodal"
     ],
     "context_window": "1M+",
+    "priority": 2,  # High priority for visual and web tasks
     "tools": [
         "gemini_prompt",
         "gemini_in_directory",
@@ -56,9 +73,11 @@ AGENT_CARD = {
         "extensions": True,
         "playbooks": True,
         "search_grounding": True,
+        "image_generation": True,
         "mcp_client": True
     }
 }
+
 
 
 async def run_gemini_command(
@@ -128,6 +147,9 @@ async def gemini_prompt(
 ) -> str:
     """
     Send a prompt to the Google Gemini CLI.
+
+    BEST FOR: Image generation, web browsing/research, web development, large codebase analysis (1M+ context).
+    NOT FOR: Complex algorithms (use claude), git changes (use aider), small edits (use codex).
 
     Args:
         prompt: The question or instruction for Gemini

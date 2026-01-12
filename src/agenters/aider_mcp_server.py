@@ -32,17 +32,33 @@ mcp = FastMCP("aider-agent")
 # Agent Card for A2A Protocol capability discovery
 AGENT_CARD = {
     "name": "aider-agent",
-    "version": "2.0.0",
+    "version": "2.1.0",
     "publisher": "Paul Gauthier (Open Source)",
-    "description": "Aider - AI pair programming with Git integration and repo mapping",
+    "description": "Best for Git-integrated code changes and multi-file refactoring. Excels at applying clean edits with automatic commits.",
+    "best_for": [
+        "git-integrated-changes",
+        "multi-file-refactoring",
+        "code-review-fixes",
+        "repository-wide-edits",
+        "architect-planning",
+        "diff-application"
+    ],
+    "not_for": [
+        "image-generation (use gemini)",
+        "web-browsing (use gemini)",
+        "complex-algorithms (use claude)",
+        "quick-snippets (use codex)",
+        "autonomous-workflows (use goose)"
+    ],
     "strengths": [
         "git-integration",
-        "code-editing",
+        "multi-file-editing",
         "diff-handling",
         "repo-mapping",
         "architect-mode"
     ],
     "context_window": "varies by model",
+    "priority": 3,  # High priority for Git-based editing tasks
     "tools": [
         "aider_chat",
         "aider_architect",
@@ -57,6 +73,7 @@ AGENT_CARD = {
         "model_agnostic": True
     }
 }
+
 
 
 async def run_aider_command(
@@ -120,6 +137,9 @@ async def aider_chat(
 ) -> str:
     """
     Send a message to Aider to make changes to code.
+
+    BEST FOR: Git-integrated changes, multi-file refactoring, repository-wide edits, code review fixes.
+    NOT FOR: Images (use gemini), complex algorithms (use claude), quick snippets (use codex).
 
     Args:
         message: The instruction or request for Aider
