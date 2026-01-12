@@ -1,0 +1,160 @@
+{
+    "agents": [
+        {
+            "name": "claude-agent",
+            "version": "2.0.0",
+            "publisher": "Anthropic",
+            "description": "Claude Code via claude-agent-sdk - Expert at reasoning, coding, and structured output",
+            "strengths": [
+                "deep-reasoning",
+                "coding",
+                "long-context",
+                "structured-output",
+                "file-operations",
+                "multi-step-planning"
+            ],
+            "context_window": "200K+",
+            "tools": [
+                "ask_claude",
+                "ask_claude_with_system",
+                "ask_claude_json",
+                "ask_claude_in_directory",
+                "ask_claude_with_tools",
+                "ask_claude_with_hooks",
+                "ask_claude_with_skill",
+                "spawn_claude_agent",
+                "get_claude_capabilities",
+                "get_claude_version"
+            ],
+            "supported_features": {
+                "hooks": [
+                    "PreToolUse",
+                    "PostToolUse",
+                    "Notification",
+                    "Stop"
+                ],
+                "skills": true,
+                "sub_agents": true,
+                "mcp_servers": true
+            }
+        },
+        {
+            "name": "gemini-agent",
+            "version": "2.0.0",
+            "publisher": "Google",
+            "description": "Google Gemini CLI - Expert at large-context analysis and real-time web search",
+            "strengths": [
+                "large-context",
+                "search-grounding",
+                "real-time-data",
+                "multimodal",
+                "file-analysis"
+            ],
+            "context_window": "1M+",
+            "tools": [
+                "gemini_prompt",
+                "gemini_in_directory",
+                "gemini_with_search",
+                "gemini_with_playbook",
+                "get_gemini_capabilities",
+                "get_gemini_version"
+            ],
+            "supported_features": {
+                "extensions": true,
+                "playbooks": true,
+                "search_grounding": true,
+                "mcp_client": true
+            }
+        },
+        {
+            "name": "goose-agent",
+            "version": "2.0.0",
+            "publisher": "Block (Square)",
+            "description": "Goose - Autonomous AI agent for multi-step workflow automation",
+            "strengths": [
+                "autonomous-operation",
+                "multi-step-workflows",
+                "local-execution",
+                "recipe-based-automation",
+                "toolkit-extensibility"
+            ],
+            "context_window": "varies",
+            "tools": [
+                "goose_run",
+                "goose_run_file",
+                "goose_run_recipe",
+                "goose_with_toolkits",
+                "get_goose_capabilities",
+                "get_goose_version"
+            ],
+            "supported_features": {
+                "recipes": true,
+                "toolkits": true,
+                "autonomous_execution": true,
+                "mcp_extensions": true
+            }
+        },
+        {
+            "name": "aider-agent",
+            "version": "2.0.0",
+            "publisher": "Paul Gauthier (Open Source)",
+            "description": "Aider - AI pair programming with Git integration and repo mapping",
+            "strengths": [
+                "git-integration",
+                "code-editing",
+                "diff-handling",
+                "repo-mapping",
+                "architect-mode"
+            ],
+            "context_window": "varies by model",
+            "tools": [
+                "aider_chat",
+                "aider_architect",
+                "aider_ask",
+                "get_aider_capabilities",
+                "get_aider_version"
+            ],
+            "supported_features": {
+                "git_auto_commit": true,
+                "architect_mode": true,
+                "repo_map": true,
+                "model_agnostic": true
+            }
+        },
+        {
+            "name": "codex-agent",
+            "version": "2.0.0",
+            "publisher": "OpenAI",
+            "description": "OpenAI Codex CLI - Powered by GPT models for code generation and editing",
+            "strengths": [
+                "code-generation",
+                "sandboxed-execution",
+                "natural-language-to-code",
+                "multimodal-support",
+                "auto-editing"
+            ],
+            "context_window": "varies by model",
+            "tools": [
+                "codex_prompt",
+                "codex_full_auto",
+                "codex_auto_edit",
+                "get_codex_capabilities",
+                "get_codex_version"
+            ],
+            "supported_features": {
+                "approval_modes": [
+                    "suggest",
+                    "auto-edit",
+                    "full-auto"
+                ],
+                "sandboxed_execution": true,
+                "mcp_extensions": true
+            }
+        }
+    ],
+    "protocol_version": "1.0.0",
+    "compatibility": {
+        "mcp": "1.0+",
+        "a2a": "1.0"
+    }
+}

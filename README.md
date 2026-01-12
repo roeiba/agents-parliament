@@ -163,7 +163,7 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ## Available Tools
 
-### Claude MCP Server
+### Claude MCP Server (v2.0 - A2A Enhanced)
 
 | Tool | Description |
 |------|-------------|
@@ -172,44 +172,109 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 | `ask_claude_json` | Get structured JSON response |
 | `ask_claude_in_directory` | Run with directory context |
 | `ask_claude_with_tools` | Run with specific tools enabled |
+| `ask_claude_with_hooks` | Execute with pre/post hooks |
+| `ask_claude_with_skill` | Load a skill for specialized tasks |
+| `spawn_claude_agent` | Create a sub-agent with custom instructions |
+| `get_claude_capabilities` | Get agent card for A2A discovery |
 | `get_claude_version` | Get CLI version |
 
-### Aider MCP Server
+### Aider MCP Server (v2.0 - A2A Enhanced)
 
 | Tool | Description |
 |------|-------------|
 | `aider_chat` | Send a message to make code changes |
 | `aider_architect` | Use architect mode for planning |
 | `aider_ask` | Ask questions without making changes |
+| `get_aider_capabilities` | Get agent card for A2A discovery |
 | `get_aider_version` | Get Aider version |
 
-### Codex MCP Server
+### Codex MCP Server (v2.0 - A2A Enhanced)
 
 | Tool | Description |
 |------|-------------|
 | `codex_prompt` | Send a prompt (suggest mode) |
 | `codex_full_auto` | Run in full-auto sandboxed mode |
 | `codex_auto_edit` | Run in auto-edit mode |
+| `get_codex_capabilities` | Get agent card for A2A discovery |
 | `get_codex_version` | Get Codex CLI version |
 
-### Gemini MCP Server
+### Gemini MCP Server (v2.0 - A2A Enhanced)
 
 | Tool | Description |
 |------|-------------|
 | `gemini_prompt` | Send a prompt to Gemini |
 | `gemini_in_directory` | Run with directory context |
 | `gemini_with_search` | Run with Google Search grounding |
+| `gemini_with_playbook` | Execute with a specialized playbook |
+| `get_gemini_capabilities` | Get agent card for A2A discovery |
 | `get_gemini_version` | Get Gemini CLI version |
 
-### Goose MCP Server
+### Goose MCP Server (v2.0 - A2A Enhanced)
 
 | Tool | Description |
 |------|-------------|
 | `goose_run` | Run with text instructions |
 | `goose_run_file` | Run with instructions from file |
 | `goose_run_recipe` | Run a predefined recipe |
+| `goose_with_toolkits` | Run with specific toolkits enabled |
+| `get_goose_capabilities` | Get agent card for A2A discovery |
 | `get_goose_version` | Get Goose version |
+
+## A2A Protocol & Mesh Coordination
+
+The Agents Parliament now supports **agent-to-agent (A2A) communication** and **full mesh coordination**.
+
+### Agent Capability Discovery
+
+Each agent exposes a `get_*_capabilities` tool that returns an agent card:
+
+```python
+from agenters.a2a_protocol import discover_agents, find_best_agent
+
+# Discover all agents
+agents = discover_agents()
+for agent in agents:
+    print(f"{agent.name}: {agent.strengths}")
+
+# Find best agent for a task
+agent = find_best_agent("search the web for latest Python trends")
+# Returns: gemini-agent (has search-grounding strength)
+```
+
+### Mesh Coordination
+
+Route tasks to the best agent based on capabilities:
+
+```python
+from agenters.mesh_coordinator import create_mesh
+
+mesh = create_mesh()
+
+# Find best agent for a task
+agent, reasoning = mesh.route_to_best_agent("Refactor this code with Git commits")
+# agent: aider-agent, reasoning: git-integration strength
+
+# Suggest a team for complex tasks
+team = mesh.suggest_team("Research latest APIs, implement feature, and deploy")
+# Returns: [(gemini-agent, "Research"), (claude-agent, "Implement"), (goose-agent, "Deploy")]
+```
+
+### Advanced Features
+
+| Feature | Agent | Description |
+|---------|-------|-------------|
+| **Hooks** | Claude | Execute shell commands before/after prompts |
+| **Skills** | Claude | Load specialized SKILL.md files |
+| **Sub-agents** | Claude | Spawn task-specific agents dynamically |
+| **Playbooks** | Gemini | Pre-configured workflow guides |
+| **Toolkits** | Goose | Enable MCP extensions (GitHub, Jira, etc.) |
+| **Recipes** | Goose | YAML-defined reusable workflows |
+| **Architect Mode** | Aider | Two-model planning approach |
+| **Full-Auto** | Codex | Sandboxed autonomous execution |
+
+For detailed documentation, see [docs/advanced_features.md](docs/advanced_features.md).
 
 ## License
 
 MIT
+

@@ -99,6 +99,14 @@ SERVERS = {
         "prerequisite": "Goose CLI (goose)",
         "install_cmd": "curl -fsSL https://github.com/block/goose/releases/download/stable/download_cli.sh | bash",
     },
+    "lastagent": {
+        "name": "LastAgent",
+        "description": "Full-mesh AI orchestrator - routes to best agent",
+        "file": "lastagent_mcp_server.py",
+        "mcp_name": "lastagent-agent",
+        "prerequisite": "LastAgent CLI (lastagent)",
+        "install_cmd": "pip install lastagent",
+    },
 }
 
 # ============================================================================
