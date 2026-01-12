@@ -60,6 +60,53 @@ cd agenters
 pip install .
 ```
 
+## Provisioning
+
+The `agenters` CLI provides easy provisioning for your environment.
+
+### Check Status
+
+See what's currently configured:
+
+```bash
+agenters status
+```
+
+### Quick Provisioning
+
+```bash
+# Provision all agents globally for Cursor
+agenters provision --global --client cursor --agents all --yes
+
+# Provision specific agents for a project
+agenters provision --project --agents claude,aider
+
+# Preview changes without applying (dry-run)
+agenters provision --global --client vscode --dry-run
+```
+
+### Supported Clients
+
+| Client Flag | Description |
+|-------------|-------------|
+| `--client claude` | Claude Desktop |
+| `--client cursor` | Cursor IDE |
+| `--client vscode` | VS Code |
+| `--client windsurf` | Windsurf |
+| `--client antigravity` | Antigravity (Gemini) |
+
+### Interactive Install/Uninstall
+
+For an interactive experience:
+
+```bash
+# Interactive installer with step-by-step prompts
+agenters install
+
+# Interactive uninstaller
+agenters uninstall
+```
+
 ## Usage
 
 ### Run servers directly

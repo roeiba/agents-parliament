@@ -3,9 +3,15 @@ Aider MCP Server
 
 An MCP server that allows other AI agents to interact with Aider,
 the AI pair programming tool.
+
+Enhanced with:
+- A2A capability discovery via agent cards
+- Architect mode for planning
+- Git-integrated code changes
 """
 
 import asyncio
+import json
 import logging
 import sys
 from typing import Optional
@@ -22,6 +28,35 @@ logger = logging.getLogger("aider-mcp")
 
 # Initialize FastMCP server
 mcp = FastMCP("aider-agent")
+
+# Agent Card for A2A Protocol capability discovery
+AGENT_CARD = {
+    "name": "aider-agent",
+    "version": "2.0.0",
+    "publisher": "Paul Gauthier (Open Source)",
+    "description": "Aider - AI pair programming with Git integration and repo mapping",
+    "strengths": [
+        "git-integration",
+        "code-editing",
+        "diff-handling",
+        "repo-mapping",
+        "architect-mode"
+    ],
+    "context_window": "varies by model",
+    "tools": [
+        "aider_chat",
+        "aider_architect",
+        "aider_ask",
+        "get_aider_capabilities",
+        "get_aider_version"
+    ],
+    "supported_features": {
+        "git_auto_commit": True,
+        "architect_mode": True,
+        "repo_map": True,
+        "model_agnostic": True
+    }
+}
 
 
 async def run_aider_command(
@@ -192,12 +227,28 @@ async def get_aider_version() -> str:
     return await run_aider_command(["--version"])
 
 
+@mcp.tool()
+async def get_aider_capabilities() -> str:
+    """
+    Get Aider's agent card for A2A protocol capability discovery.
+
+    This returns a JSON agent card describing Aider's capabilities,
+    strengths, available tools, and supported features.
+
+    Returns:
+        JSON string containing the agent capability card
+    """
+    logger.info("get_aider_capabilities called")
+    return json.dumps(AGENT_CARD, indent=2)
+
+
 def main():
     """Run the MCP server with STDIO transport."""
     logger.info("=" * 60)
-    logger.info("Starting Aider MCP Server")
+    logger.info("Starting Aider MCP Server v2.0 (A2A Enhanced)")
     logger.info("=" * 60)
-    logger.info("Tools: aider_chat, aider_architect, aider_ask, get_aider_version")
+    logger.info("Core tools: aider_chat, aider_architect, aider_ask")
+    logger.info("Discovery: get_aider_capabilities, get_aider_version")
     mcp.run(transport="stdio")
 
 

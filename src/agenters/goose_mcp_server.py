@@ -3,9 +3,15 @@ Goose MCP Server
 
 An MCP server that allows other AI agents to interact with Block's
 Goose AI agent.
+
+Enhanced with:
+- A2A capability discovery via agent cards
+- Toolkits/extensions support
+- Recipe-based workflow execution
 """
 
 import asyncio
+import json
 import logging
 import sys
 from typing import Optional
@@ -22,6 +28,36 @@ logger = logging.getLogger("goose-mcp")
 
 # Initialize FastMCP server
 mcp = FastMCP("goose-agent")
+
+# Agent Card for A2A Protocol capability discovery
+AGENT_CARD = {
+    "name": "goose-agent",
+    "version": "2.0.0",
+    "publisher": "Block (Square)",
+    "description": "Goose - Autonomous AI agent for multi-step workflow automation",
+    "strengths": [
+        "autonomous-operation",
+        "multi-step-workflows",
+        "local-execution",
+        "recipe-based-automation",
+        "toolkit-extensibility"
+    ],
+    "context_window": "varies",
+    "tools": [
+        "goose_run",
+        "goose_run_file",
+        "goose_run_recipe",
+        "goose_with_toolkits",
+        "get_goose_capabilities",
+        "get_goose_version"
+    ],
+    "supported_features": {
+        "recipes": True,
+        "toolkits": True,
+        "autonomous_execution": True,
+        "mcp_extensions": True
+    }
+}
 
 
 async def run_goose_command(
@@ -179,14 +215,72 @@ async def get_goose_version() -> str:
     return await run_goose_command(["--version"])
 
 
+@mcp.tool()
+async def get_goose_capabilities() -> str:
+    """
+    Get Goose's agent card for A2A protocol capability discovery.
+
+    This returns a JSON agent card describing Goose's capabilities,
+    strengths, available tools, and supported features. Useful for
+    other agents to discover what Goose can do.
+
+    Returns:
+        JSON string containing the agent capability card
+    """
+    logger.info("get_goose_capabilities called")
+    return json.dumps(AGENT_CARD, indent=2)
+
+
+@mcp.tool()
+async def goose_with_toolkits(
+    instructions: str,
+    toolkits: str,
+    working_directory: Optional[str] = None,
+    system_instructions: Optional[str] = None,
+) -> str:
+    """
+    Run Goose with specific toolkits/extensions enabled.
+
+    Toolkits extend Goose's capabilities with additional MCP servers
+    or integrations (e.g., GitHub, Jira, databases).
+
+    Args:
+        instructions: The task instructions for Goose
+        toolkits: Comma-separated list of toolkit names to enable
+        working_directory: Optional directory to operate in
+        system_instructions: Optional system instructions
+
+    Returns:
+        Goose's response and actions taken
+    """
+    logger.info(f"goose_with_toolkits called with toolkits={toolkits}")
+
+    # Parse toolkit list
+    toolkit_list = [t.strip() for t in toolkits.split(",") if t.strip()]
+
+    args = ["run", "--text", instructions]
+
+    # Add each toolkit
+    for toolkit in toolkit_list:
+        args.extend(["--toolkit", toolkit])
+
+    if system_instructions:
+        args.extend(["--system", system_instructions])
+
+    return await run_goose_command(args, working_dir=working_directory)
+
+
 def main():
     """Run the MCP server with STDIO transport."""
     logger.info("=" * 60)
-    logger.info("Starting Goose MCP Server")
+    logger.info("Starting Goose MCP Server v2.0 (A2A Enhanced)")
     logger.info("=" * 60)
-    logger.info("Tools: goose_run, goose_run_file, goose_run_recipe, get_goose_version")
+    logger.info("Core tools: goose_run, goose_run_file, goose_run_recipe")
+    logger.info("Advanced tools: goose_with_toolkits")
+    logger.info("Discovery: get_goose_capabilities, get_goose_version")
     mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
     main()
+

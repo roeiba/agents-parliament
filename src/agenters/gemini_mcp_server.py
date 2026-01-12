@@ -3,11 +3,18 @@ Google Gemini CLI MCP Server
 
 An MCP server that allows other AI agents to interact with the
 Google Gemini CLI.
+
+Enhanced with:
+- A2A capability discovery via agent cards
+- Extensions support with playbooks
+- Google Search grounding
 """
 
 import asyncio
+import json
 import logging
 import sys
+from pathlib import Path
 from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
@@ -22,6 +29,36 @@ logger = logging.getLogger("gemini-mcp")
 
 # Initialize FastMCP server
 mcp = FastMCP("gemini-agent")
+
+# Agent Card for A2A Protocol capability discovery
+AGENT_CARD = {
+    "name": "gemini-agent",
+    "version": "2.0.0",
+    "publisher": "Google",
+    "description": "Google Gemini CLI - Expert at large-context analysis and real-time web search",
+    "strengths": [
+        "large-context",
+        "search-grounding",
+        "real-time-data",
+        "multimodal",
+        "file-analysis"
+    ],
+    "context_window": "1M+",
+    "tools": [
+        "gemini_prompt",
+        "gemini_in_directory",
+        "gemini_with_search",
+        "gemini_with_playbook",
+        "get_gemini_capabilities",
+        "get_gemini_version"
+    ],
+    "supported_features": {
+        "extensions": True,
+        "playbooks": True,
+        "search_grounding": True,
+        "mcp_client": True
+    }
+}
 
 
 async def run_gemini_command(
@@ -179,14 +216,108 @@ async def get_gemini_version() -> str:
     return await run_gemini_command(["--version"])
 
 
+@mcp.tool()
+async def get_gemini_capabilities() -> str:
+    """
+    Get Gemini's agent card for A2A protocol capability discovery.
+
+    This returns a JSON agent card describing Gemini's capabilities,
+    strengths, available tools, and supported features. Useful for
+    other agents to discover what Gemini can do.
+
+    Returns:
+        JSON string containing the agent capability card
+    """
+    logger.info("get_gemini_capabilities called")
+    return json.dumps(AGENT_CARD, indent=2)
+
+
+@mcp.tool()
+async def gemini_with_playbook(
+    prompt: str,
+    playbook_name: str,
+    playbook_directory: Optional[str] = None,
+    working_directory: Optional[str] = None,
+    model: str = "gemini-2.5-pro",
+) -> str:
+    """
+    Run Gemini with a specific playbook for specialized workflows.
+
+    Playbooks are markdown files that teach Gemini how to effectively
+    use integrated tools for specific tasks. They contain instructions,
+    examples, and best practices.
+
+    Args:
+        prompt: The question or instruction for Gemini
+        playbook_name: Name of the playbook (looks for {name}.md or {name}/playbook.md)
+        playbook_directory: Optional base directory for playbooks (default: ./playbooks)
+        working_directory: Directory context for Gemini
+        model: The Gemini model to use (default: gemini-2.5-pro)
+
+    Returns:
+        Gemini's response with playbook context applied
+    """
+    logger.info(f"gemini_with_playbook called with playbook={playbook_name}")
+
+    # Search for playbook file
+    playbook_content = None
+    search_paths = []
+
+    if playbook_directory:
+        search_paths.append(Path(playbook_directory))
+    search_paths.extend([
+        Path.cwd() / "playbooks",
+        Path.cwd() / ".gemini" / "playbooks",
+        Path.home() / ".gemini" / "playbooks",
+    ])
+
+    for base_path in search_paths:
+        # Try folder with playbook.md
+        playbook_file = base_path / playbook_name / "playbook.md"
+        if playbook_file.exists():
+            playbook_content = playbook_file.read_text()
+            logger.info(f"Loaded playbook from: {playbook_file}")
+            break
+        # Try direct .md file
+        playbook_file = base_path / f"{playbook_name}.md"
+        if playbook_file.exists():
+            playbook_content = playbook_file.read_text()
+            logger.info(f"Loaded playbook from: {playbook_file}")
+            break
+
+    if not playbook_content:
+        return f"Error: Playbook '{playbook_name}' not found in: {[str(p) for p in search_paths]}"
+
+    # Combine playbook with prompt
+    enhanced_prompt = f"""# Playbook: {playbook_name}
+
+{playbook_content}
+
+---
+
+# User Request
+
+{prompt}"""
+
+    args = [
+        "--model", model,
+        "--prompt", enhanced_prompt,
+    ]
+
+    return await run_gemini_command(args, working_dir=working_directory)
+
+
 def main():
     """Run the MCP server with STDIO transport."""
     logger.info("=" * 60)
-    logger.info("Starting Google Gemini MCP Server")
+    logger.info("Starting Google Gemini MCP Server v2.0 (A2A Enhanced)")
     logger.info("=" * 60)
-    logger.info("Tools: gemini_prompt, gemini_in_directory, gemini_with_search, get_gemini_version")
+    logger.info("Core tools: gemini_prompt, gemini_in_directory, gemini_with_search")
+    logger.info("Advanced tools: gemini_with_playbook")
+    logger.info("Discovery: get_gemini_capabilities, get_gemini_version")
     mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
     main()
+

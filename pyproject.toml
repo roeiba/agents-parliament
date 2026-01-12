@@ -26,6 +26,7 @@ dependencies = [
 "Bug Tracker" = "https://github.com/roeiba/agenters/issues"
 
 [project.scripts]
+agenters = "agenters.cli:main"
 claude-mcp = "agenters.claude_mcp_server:main"
 aider-mcp = "agenters.aider_mcp_server:main"
 codex-mcp = "agenters.codex_mcp_server:main"

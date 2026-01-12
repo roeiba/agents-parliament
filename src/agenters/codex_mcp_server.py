@@ -3,9 +3,15 @@ OpenAI Codex MCP Server
 
 An MCP server that allows other AI agents to interact with the
 OpenAI Codex CLI.
+
+Enhanced with:
+- A2A capability discovery via agent cards
+- Multiple approval modes (suggest, auto-edit, full-auto)
+- Sandboxed execution support
 """
 
 import asyncio
+import json
 import logging
 import sys
 from typing import Optional
@@ -22,6 +28,34 @@ logger = logging.getLogger("codex-mcp")
 
 # Initialize FastMCP server
 mcp = FastMCP("codex-agent")
+
+# Agent Card for A2A Protocol capability discovery
+AGENT_CARD = {
+    "name": "codex-agent",
+    "version": "2.0.0",
+    "publisher": "OpenAI",
+    "description": "OpenAI Codex CLI - Powered by GPT models for code generation and editing",
+    "strengths": [
+        "code-generation",
+        "sandboxed-execution",
+        "natural-language-to-code",
+        "multimodal-support",
+        "auto-editing"
+    ],
+    "context_window": "varies by model",
+    "tools": [
+        "codex_prompt",
+        "codex_full_auto",
+        "codex_auto_edit",
+        "get_codex_capabilities",
+        "get_codex_version"
+    ],
+    "supported_features": {
+        "approval_modes": ["suggest", "auto-edit", "full-auto"],
+        "sandboxed_execution": True,
+        "mcp_extensions": True
+    }
+}
 
 
 async def run_codex_command(
@@ -193,12 +227,28 @@ async def get_codex_version() -> str:
     return await run_codex_command(["--version"])
 
 
+@mcp.tool()
+async def get_codex_capabilities() -> str:
+    """
+    Get Codex's agent card for A2A protocol capability discovery.
+
+    This returns a JSON agent card describing Codex's capabilities,
+    strengths, available tools, and supported features.
+
+    Returns:
+        JSON string containing the agent capability card
+    """
+    logger.info("get_codex_capabilities called")
+    return json.dumps(AGENT_CARD, indent=2)
+
+
 def main():
     """Run the MCP server with STDIO transport."""
     logger.info("=" * 60)
-    logger.info("Starting OpenAI Codex MCP Server")
+    logger.info("Starting OpenAI Codex MCP Server v2.0 (A2A Enhanced)")
     logger.info("=" * 60)
-    logger.info("Tools: codex_prompt, codex_full_auto, codex_auto_edit, get_codex_version")
+    logger.info("Core tools: codex_prompt, codex_full_auto, codex_auto_edit")
+    logger.info("Discovery: get_codex_capabilities, get_codex_version")
     mcp.run(transport="stdio")
 
 
