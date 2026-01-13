@@ -10,6 +10,7 @@ import argparse
 import json
 import os
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 from typing import Optional
@@ -114,6 +115,7 @@ def get_user_config_path(client: str) -> Optional[Path]:
 def get_project_config_path(project_dir: Path, client: str) -> Path:
     """Get project-level config path for a client."""
     filenames = {
+        "claude": ".mcp.json",  # Claude Code CLI uses .mcp.json at project root
         "cursor": ".cursor/mcp.json",
         "vscode": ".vscode/mcp.json",
         "windsurf": ".windsurf/mcp.json",
@@ -180,8 +182,17 @@ def load_config(config_path: Path) -> dict:
 
 
 def save_config(config_path: Path, config: dict):
-    """Save config to file, creating directories if needed."""
+    """Save config to file, creating directories if needed.
+    
+    Creates a .backup file if the config already exists.
+    """
     config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create backup if file exists
+    if config_path.exists():
+        backup_path = config_path.with_suffix(config_path.suffix + ".backup")
+        shutil.copy2(config_path, backup_path)
+    
     with open(config_path, 'w') as f:
         json.dump(config, f, indent=2)
 
@@ -212,6 +223,111 @@ def get_mcp_server_config(agent: str) -> dict:
         "disabled": False,
         "transport": "stdio"
     }
+
+
+# ============================================================================
+# Claude CLI Native Provisioning
+# ============================================================================
+
+def is_claude_cli_available() -> bool:
+    """Check if Claude CLI is installed and supports mcp add-json."""
+    if not check_cli_installed("claude"):
+        return False
+    try:
+        result = subprocess.run(
+            ["claude", "mcp", "add-json", "--help"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        return result.returncode == 0
+    except (subprocess.TimeoutExpired, FileNotFoundError, OSError):
+        return False
+
+
+def run_claude_mcp_add(
+    server_name: str,
+    config: dict,
+    scope: str,
+    project_dir: Optional[Path] = None
+) -> tuple[bool, str]:
+    """Add an MCP server using Claude CLI.
+    
+    Args:
+        server_name: Name for the MCP server (e.g., 'claude-agent')
+        config: MCP server configuration dict
+        scope: Either 'user' (global) or 'project' (project-level)
+        project_dir: Project directory (required for project scope)
+        
+    Returns:
+        Tuple of (success: bool, message: str)
+    """
+    config_json = json.dumps(config)
+    cmd = ["claude", "mcp", "add-json", server_name, config_json, "--scope", scope]
+    
+    try:
+        cwd = str(project_dir) if project_dir else None
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=30,
+            cwd=cwd
+        )
+        if result.returncode == 0:
+            return True, f"Added {server_name} to Claude ({scope})"
+        else:
+            error = result.stderr.strip() or result.stdout.strip() or "Unknown error"
+            return False, f"Failed to add {server_name}: {error}"
+    except subprocess.TimeoutExpired:
+        return False, f"Timeout adding {server_name}"
+    except FileNotFoundError:
+        return False, "Claude CLI not found"
+    except OSError as e:
+        return False, f"OS error: {e}"
+
+
+def provision_claude_native(
+    agents: list[str],
+    scope: str,
+    project_dir: Optional[Path] = None,
+    dry_run: bool = False
+) -> tuple[int, int]:
+    """Provision MCP servers using native Claude CLI.
+    
+    Args:
+        agents: List of agent names to provision
+        scope: Either 'user' (global) or 'project' (project-level)
+        project_dir: Project directory (required for project scope)
+        dry_run: If True, only print commands without executing
+        
+    Returns:
+        Tuple of (success_count, failure_count)
+    """
+    success_count = 0
+    failure_count = 0
+    
+    for agent in agents:
+        server_name = f"{agent}-agent"
+        config = get_mcp_server_config(agent)
+        
+        if dry_run:
+            config_json = json.dumps(config)
+            cwd_info = f" (in {project_dir})" if project_dir else ""
+            print(f"  {Colors.CYAN}[DRY RUN]{Colors.ENDC} Would run:")
+            print(f"    claude mcp add-json {server_name} '{config_json}' --scope {scope}{cwd_info}")
+            success_count += 1
+            continue
+        
+        success, message = run_claude_mcp_add(server_name, config, scope, project_dir)
+        if success:
+            print_success(message)
+            success_count += 1
+        else:
+            print_error(message)
+            failure_count += 1
+    
+    return success_count, failure_count
 
 
 def get_agent_cli_status(agents: list[str]) -> tuple[list[str], list[str]]:
@@ -544,7 +660,11 @@ def cmd_status(args):
 # ============================================================================
 
 def cmd_provision(args):
-    """Smart provisioning command with interactive client and agent selection."""
+    """Smart provisioning command - provisions both global and project configs by default.
+    
+    Default behavior: provision to all detected global clients AND project-level clients.
+    Use --global or --project flags to filter to just one scope.
+    """
     # Parse agents
     if args.agents:
         if args.agents.lower() == "all":
@@ -564,48 +684,89 @@ def cmd_provision(args):
         print_info("No agents selected. Exiting.")
         return 0
     
-    # Determine scope and get clients
-    if args.scope == "global":
-        # If --client is specified, use only that client
+    # Determine project directory
+    project_dir = Path(args.project_dir or Path.cwd())
+    
+    # Build list of all available targets based on scope filter
+    all_targets = []  # List of (client_id, config_path, scope_label)
+    
+    include_global = args.scope in ("all", "global")
+    include_project = args.scope in ("all", "project")
+    
+    # Global clients (user-level configs)
+    if include_global:
         if args.client:
+            # Specific client requested
             config_path = get_user_config_path(args.client)
-            if not config_path:
-                print_error(f"Unknown client: {args.client}")
-                print_info(f"Available clients: {', '.join(AVAILABLE_CLIENTS.keys())}")
-                return 1
-            selected_clients = {args.client: config_path}
+            if config_path and (config_path.exists() or config_path.parent.exists()):
+                all_targets.append((args.client, config_path, "global"))
         else:
-            # Auto-detect available clients and let user choose
-            available_clients = get_available_clients()
-            if not available_clients:
-                print_error("No MCP clients detected on this system.")
-                print_info("Install one of: Cursor, VS Code, Claude Desktop, Windsurf, or Antigravity")
-                return 1
-            
-            selected_client_ids = prompt_client_selection(available_clients, args.yes)
-            if not selected_client_ids:
-                print_info("No clients selected. Exiting.")
-                return 0
-            
-            selected_clients = {cid: available_clients[cid] for cid in selected_client_ids}
+            # Auto-detect all available global clients
+            for client_id in AVAILABLE_CLIENTS.keys():
+                config_path = get_user_config_path(client_id)
+                if config_path and (config_path.exists() or config_path.parent.exists()):
+                    all_targets.append((client_id, config_path, "global"))
+    
+    # Project clients (project-level configs)
+    if include_project and project_dir.exists():
+        project_capable_clients = ["claude", "cursor", "vscode", "windsurf"]
+        if args.client and args.client in project_capable_clients:
+            config_path = get_project_config_path(project_dir, args.client)
+            all_targets.append((args.client, config_path, "project"))
+        elif not args.client:
+            for client_id in project_capable_clients:
+                config_path = get_project_config_path(project_dir, client_id)
+                all_targets.append((client_id, config_path, "project"))
+    
+    if not all_targets:
+        print_error("No MCP clients available for provisioning.")
+        print_info("Install one of: Cursor, VS Code, Claude Desktop, Windsurf, or Antigravity")
+        return 1
+    
+    # Interactive client selection
+    if args.yes:
+        # Auto-mode: select all available targets
+        selected_targets = all_targets
+        print_info(f"Auto-selecting {len(selected_targets)} target(s)")
     else:
-        # Project scope - use specified client or default to cursor
-        project_dir = Path(args.project_dir or Path.cwd())
-        if not project_dir.exists():
-            print_error(f"Project directory does not exist: {project_dir}")
-            return 1
+        print(f"\n{Colors.BOLD}Available MCP Client Targets:{Colors.ENDC}\n")
         
-        client = args.client or "cursor"
-        config_path = get_project_config_path(project_dir, client)
-        selected_clients = {client: config_path}
-        print_info(f"Provisioning for project: {project_dir}")
+        for i, (client_id, config_path, scope) in enumerate(all_targets, 1):
+            client_name = AVAILABLE_CLIENTS.get(client_id, client_id)
+            scope_tag = f"{Colors.BLUE}[global]{Colors.ENDC}" if scope == "global" else f"{Colors.CYAN}[project]{Colors.ENDC}"
+            exists = config_path.exists()
+            status = f"{Colors.GREEN}configured{Colors.ENDC}" if exists else f"{Colors.YELLOW}new{Colors.ENDC}"
+            print(f"  [{i}] {client_name:15} {scope_tag} ({status})")
+        
+        print()
+        selection = input(f"{Colors.BOLD}Enter numbers (e.g., 1 2 3), 'all', or 'q' to quit [all]: {Colors.ENDC}").strip() or "all"
+        
+        if selection.lower() == 'q':
+            print_info("Provisioning cancelled.")
+            return 0
+        
+        if selection.lower() == "all":
+            selected_targets = all_targets
+        else:
+            try:
+                indices = [int(x.strip()) for x in selection.split() if x.strip()]
+                selected_targets = [all_targets[i-1] for i in indices if 1 <= i <= len(all_targets)]
+                if not selected_targets:
+                    print_warning("No valid targets selected.")
+                    return 0
+            except (ValueError, IndexError):
+                print_error("Invalid selection.")
+                return 1
     
     # Final confirmation
     if not args.yes and not args.dry_run:
         print()
         print_header("Confirm Provisioning")
         print(f"Agents: {', '.join(selected_agents)}")
-        print(f"Clients: {', '.join(AVAILABLE_CLIENTS.get(c, c) for c in selected_clients.keys())}")
+        print(f"\nTargets ({len(selected_targets)}):")
+        for client_id, config_path, scope in selected_targets:
+            client_name = AVAILABLE_CLIENTS.get(client_id, client_id)
+            print(f"  • {client_name} [{scope}]: {config_path}")
         
         # Check for missing CLIs in selection
         selected_missing = [a for a in selected_agents if a in missing]
@@ -618,33 +779,82 @@ def cmd_provision(args):
             print_info("Provisioning cancelled.")
             return 0
     
-    # Provision to each selected client
+    # Provision to each selected target
     success_count = 0
-    for client_id, config_path in selected_clients.items():
+    failure_count = 0
+    claude_cli_available = is_claude_cli_available()
+    
+    for client_id, config_path, scope in selected_targets:
         client_name = AVAILABLE_CLIENTS.get(client_id, client_id)
+        scope_tag = f"[{scope}]"
         
         if args.dry_run:
+            # Check if we'll use native Claude CLI
+            use_native = (
+                client_id == "claude" 
+                and claude_cli_available 
+                and getattr(args, 'method', 'auto') != 'file'
+            )
             print()
-            print_info(f"[DRY RUN] Would provision to {client_name}:")
-            print(f"  Config: {config_path}")
-            print(f"  Agents: {', '.join(selected_agents)}")
+            if use_native:
+                print_info(f"[DRY RUN] Would provision to {client_name} {scope_tag} via Claude CLI:")
+                claude_scope = "user" if scope == "global" else "project"
+                provision_claude_native(
+                    agents=selected_agents,
+                    scope=claude_scope,
+                    project_dir=project_dir if scope == "project" else None,
+                    dry_run=True
+                )
+            else:
+                print_info(f"[DRY RUN] Would provision to {client_name} {scope_tag}:")
+                print(f"  Config: {config_path}")
+                print(f"  Agents: {', '.join(selected_agents)}")
             success_count += 1
             continue
         
-        # Load/create config
-        config = load_config(config_path)
-        if "mcpServers" not in config:
-            config["mcpServers"] = {}
+        # Check if we should use native Claude CLI for this target
+        use_native = (
+            client_id == "claude" 
+            and claude_cli_available 
+            and getattr(args, 'method', 'auto') != 'file'
+        )
+        force_native = getattr(args, 'method', 'auto') == 'native'
         
-        # Add agents
-        for agent in selected_agents:
-            mcp_name = f"{agent}-agent"
-            config["mcpServers"][mcp_name] = get_mcp_server_config(agent)
+        if client_id == "claude" and force_native and not claude_cli_available:
+            print_error(f"--native specified but Claude CLI not available")
+            failure_count += 1
+            continue
         
-        # Save
-        save_config(config_path, config)
-        print_success(f"Provisioned {len(selected_agents)} agent(s) to {client_name}")
-        success_count += 1
+        if use_native:
+            # Use native Claude CLI
+            claude_scope = "user" if scope == "global" else "project"
+            print_info(f"Provisioning to {client_name} {scope_tag} via Claude CLI...")
+            successes, failures = provision_claude_native(
+                agents=selected_agents,
+                scope=claude_scope,
+                project_dir=project_dir if scope == "project" else None,
+                dry_run=False
+            )
+            if failures == 0:
+                success_count += 1
+            else:
+                failure_count += 1
+        else:
+            # Fallback: write config file directly
+            if client_id == "claude" and not claude_cli_available:
+                print_warning(f"Claude CLI not available, using file-based provisioning")
+            
+            config = load_config(config_path)
+            if "mcpServers" not in config:
+                config["mcpServers"] = {}
+            
+            for agent in selected_agents:
+                mcp_name = f"{agent}-agent"
+                config["mcpServers"][mcp_name] = get_mcp_server_config(agent)
+            
+            save_config(config_path, config)
+            print_success(f"Provisioned {len(selected_agents)} agent(s) to {client_name} {scope_tag}")
+            success_count += 1
     
     if args.dry_run:
         print(f"\n{Colors.YELLOW}No changes made (dry run){Colors.ENDC}")
@@ -663,7 +873,7 @@ def cmd_provision(args):
                 print_installation_commands(provisioned_missing)
     
     print()
-    print_info(f"Successfully provisioned to {success_count} client(s).")
+    print_info(f"Successfully provisioned to {success_count} target(s).")
     print_info("Restart your MCP client(s) for changes to take effect.")
     return 0
 
@@ -728,15 +938,15 @@ Examples:
         dest="scope",
         action="store_const",
         const="global",
-        default="project",
-        help="User-level config (available to all projects)"
+        default="all",
+        help="Only user-level configs (filter)"
     )
     scope_group.add_argument(
         "--project", "-p",
         dest="scope",
         action="store_const",
         const="project",
-        help="Project-level config (current directory)"
+        help="Only project-level configs (filter)"
     )
     provision_parser.add_argument(
         "--client", "-c",
@@ -762,6 +972,22 @@ Examples:
         "--yes", "-y",
         action="store_true",
         help="Non-interactive mode (skip confirmations)"
+    )
+    method_group = provision_parser.add_mutually_exclusive_group()
+    method_group.add_argument(
+        "--native",
+        dest="method",
+        action="store_const",
+        const="native",
+        default="auto",
+        help="Force native Claude CLI provisioning (bypasses interactive approval)"
+    )
+    method_group.add_argument(
+        "--file",
+        dest="method",
+        action="store_const",
+        const="file",
+        help="Force file-based provisioning (writes .mcp.json directly)"
     )
     provision_parser.set_defaults(func=cmd_provision)
     

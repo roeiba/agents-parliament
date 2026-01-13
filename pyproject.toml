@@ -8,7 +8,7 @@ version = "0.3.0"
 description = "MCP servers that allow AI agents to interact with various AI coding assistants"
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = {text = "MIT"}
 authors = [
     { name = "Roei Bar", email = "roei@example.com" }
 ]
